@@ -25,18 +25,22 @@ void ChatServer::setup() {
     serverAddress.sin_addr.s_addr = INADDR_ANY;
     serverAddress.sin_port = htons(m_port);
 
+    std::cout << "[STARTUP] Server started on port: " + m_port << std::endl;
+
     // Bind Socket
 
     if (bind(m_serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
         std::cerr << "Error binding socket\n";
         exit(1);
     }
+
+    
 }
 
 void ChatServer::handleClient(int clientSocket) {
     //send welcome message
 
-    const char* welcomeMessage = "Connected To Server\n";
+    const char* welcomeMessage = "CONNECTED";
     send(clientSocket, welcomeMessage, strlen(welcomeMessage), 0);
 
     char buffer [1024];
@@ -61,7 +65,10 @@ void ChatServer::handleClient(int clientSocket) {
             m_mutex.lock();
             m_clients[clientSocket] = username;
             m_mutex.unlock();
-        }else if (command == "MESSAGE") {
+            std::cout << "[CLIENT] Logged in username: " + username << std::endl;
+            const char* Logginmsg = "SUCCESFULL";
+            send(clientSocket, Logginmsg, strlen(Logginmsg), 0);
+        }else if (command == "MSG") {
             //Receiv message
             
             Message msg;
@@ -111,17 +118,47 @@ void ChatServer::handleClient(int clientSocket) {
             m_boardMembers[currentBoard].erase(std::remove(m_boardMembers[currentBoard].begin(), m_boardMembers[currentBoard].end(), clientSocket), m_boardMembers[currentBoard].end());
             currentBoard = content;
             m_boardMembers[currentBoard].push_back(clientSocket);
+            m_mutex.unlock();
 
+            m_mutex.lock();
             std::string boardMessages = "Messages from " + currentBoard + ": ";
             for (const auto& msg : m_boards[currentBoard]) {
                 boardMessages += "\nMessage ID: " + std::to_string(msg.id) + ", Sender: " + msg.sender + ", Post Date: " + std::to_string(msg.postDate) + ", Subject: " + msg.subject + ", Message content: " + msg.content;
             }
+            send(clientSocket, boardMessages.c_str(), boardMessages.size(), 0);
+            m_mutex.unlock();
         } else if (command == "DISC") {
             //Disconnect from server
             break;
         } else if (command == "ADD") {
             //Add a new board group
             //Add a new user to a board
+            std::string type = content.substr(0, content.find(" "));
+            std::string name = content.substr(content.find(" ") + 1);
+
+            if (type == "BOARD") {
+                // Add a new board for all clients
+                m_mutex.lock();
+                m_boards[name];
+                for (const auto& client: m_clients) {
+                    m_boardMembers[name].push_back(client.first);
+                }
+                m_mutex.unlock();
+            } else if (type == "GROUP") {
+                // Add a group with only the client
+                m_mutex.lock();
+                m_boardMembers[name].push_back(clientSocket);
+                m_mutex.unlock();
+            } else if (type == "USER") {
+                m_mutex.lock();
+                for (const auto& client: m_clients) {
+                    if (client.second == name) {
+                        m_boardMembers[currentBoard].push_back(client.first);
+                        break;
+                    }
+                }
+                m_mutex.unlock();
+            }
 
         }
 
@@ -151,5 +188,7 @@ void ChatServer::run() {
         //create new thread to handle client
         std::thread clientThread(&ChatServer::handleClient, this, clientSocket);
         clientThread.detach(); //Detatch thread
+        
+        std::cout << "[CONNECTION] Client connected. Socket: " + clientSocket << std::endl;
     }
 }
