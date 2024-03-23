@@ -1,5 +1,11 @@
+import argparse
+import getpass
 import socket
 import threading
+import colorama
+from colorama import Fore, Style
+
+colorama.init()
 
 def receive_handler(client_socket):
     while True:
@@ -7,29 +13,29 @@ def receive_handler(client_socket):
         if not msg:
             break
 
-        print(msg)
+        print(Fore.GREEN + msg + Style.RESET_ALL)
         print("->",end='',flush=True)
 
 
 
-def client_program():
-    host = 'localhost'
-    port = 8080
+def client_program(args):
+    host = args.host
+    port = args.port
 
     client_socket = socket.socket()
     client_socket.connect((host, port))
 
     connected = client_socket.recv(1024).decode()
     if(connected == "CONNECTED"):
-        print("Conneced Sucessfully!")
+        print(Fore.GREEN + "Conneced Sucessfully!" + Style.RESET_ALL)
 
-    username = input("Login to Server: ")
+    username = getpass.getpass("Login to Server: ")
     login_command = f'LOGIN {username}'
     client_socket.send(login_command.encode())
 
     response = client_socket.recv(1024).decode()
     if response == "SUCCESFULL":
-        print("Logged into server as: " + username)
+        print(Fore.GREEN + "Logged into server as: " + username + Style.RESET_ALL)
 
     threading.Thread(target=receive_handler, args=(client_socket,)).start()
 
@@ -76,4 +82,9 @@ def client_program():
 
 
 if __name__ == '__main__':
-    client_program()
+    parser = argparse.ArgumentParser(description="Chatroom Client")
+    parser.add_argument('--host',type=str, default='localhost', help='The host of the server')
+    parser.add_argument('--port',type=int,default=8080, help="The port to connect to")
+    args = parser.parse_args()
+    
+    client_program(args)

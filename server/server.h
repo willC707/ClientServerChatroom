@@ -26,8 +26,13 @@ class ChatServer {
         std::map<int, std::string>m_clients;
         std::map<std::string, std::vector<Message>> m_boards;
         std::map<std::string, std::vector<int>> m_boardMembers;
+        std::map<std::string, std::vector<int>> m_activeMembers;
+
+        std::map<std::string, std::vector<Message>> m_groups;
+        std::map<std::string, std::vector<int>> m_groupMembers;
         //std::vector<Message> m_messages;
         //std::vector<std::string> m_boards;
+        int message_id_counter;
 
         void handleClient(int clientSocket);
 

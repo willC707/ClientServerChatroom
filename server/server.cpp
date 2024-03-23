@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <cstring>
 
-ChatServer::ChatServer(int port) : m_port(port), m_serverSocket(-1) {}
+ChatServer::ChatServer(int port) : m_port(port), m_serverSocket(-1), message_id_counter(0) {}
 
 ChatServer::~ChatServer() {
     close(m_serverSocket);
@@ -25,7 +25,7 @@ void ChatServer::setup() {
     serverAddress.sin_addr.s_addr = INADDR_ANY;
     serverAddress.sin_port = htons(m_port);
 
-    std::cout << "[STARTUP] Server started on port: " + m_port << std::endl;
+    std::cout << "[STARTUP] Server started on port: " << m_port << std::endl;
 
     // Bind Socket
 
@@ -64,15 +64,21 @@ void ChatServer::handleClient(int clientSocket) {
             username = content;
             m_mutex.lock();
             m_clients[clientSocket] = username;
+
+            for (auto& board : m_boards) {
+                if(std::find(m_boardMembers[board.first].begin(), m_boardMembers[board.first].end(),clientSocket) == m_boardMembers[board.first].end()) {
+                    m_boardMembers[board.first].push_back(clientSocket);
+                }
+            }
             m_mutex.unlock();
-            std::cout << "[CLIENT] Logged in username: " + username << std::endl;
+            std::cout << "[CLIENT] Logged in username: " << username << std::endl;
             const char* Logginmsg = "SUCCESFULL";
             send(clientSocket, Logginmsg, strlen(Logginmsg), 0);
         }else if (command == "MSG") {
             //Receiv message
             
             Message msg;
-            msg.id = rand();
+            msg.id = message_id_counter++;
             msg.sender = username;
             msg.postDate = time(0);
             msg.subject = content.substr(0,content.find(":"));
@@ -80,9 +86,10 @@ void ChatServer::handleClient(int clientSocket) {
             m_mutex.lock();
             m_boards[currentBoard].push_back(msg);
 
+            std::string board_message = "\n\nMessage ID: " + std::to_string(msg.id) + "\n Sender: " + msg.sender + "\n Post Date: " + std::to_string(msg.postDate) + "\n Subject: " + msg.subject + "\n Message content: " + msg.content;
             //broadcast to board
-            for (int userSocket : m_boardMembers[currentBoard]) {
-                send(userSocket, message.c_str(), message.size(), 0);
+            for (int userSocket : m_activeMembers[currentBoard]) {
+                send(userSocket, board_message.c_str(), board_message.size(), 0);
             }
             m_mutex.unlock();
 
@@ -95,7 +102,7 @@ void ChatServer::handleClient(int clientSocket) {
             m_mutex.lock();
             std::string userList = "Connected Users: ";
             for (const auto& client : m_clients) {
-                userList += client.second + ", ";
+                userList += client.second + "\n ";
             }
             userList = userList.substr(0, userList.size() - 2);
             send(clientSocket, userList.c_str(), userList.size(), 0);
@@ -106,26 +113,52 @@ void ChatServer::handleClient(int clientSocket) {
             m_mutex.lock();
             std::string boardsList = "Available Boards: ";
             for (const auto& board : m_boards) {
-                boardsList += board.first + ", ";
+                if (std::find(m_boardMembers[board.first].begin(), m_boardMembers[board.first].end(), clientSocket) != m_boardMembers[board.first].end()){
+                    boardsList += board.first + "\n";
+                }
+                
             }
-            boardsList = boardsList.substr(0, boardsList.size()-2);
+            for (const auto& group : m_groups) {
+                if (std::find(m_groupMembers[group.first].begin(), m_groupMembers[group.first].end(), clientSocket) != m_groupMembers[group.first].end()){
+                    boardsList += group.first + "\n";
+                }
+            }
+            boardsList = boardsList.substr(0, boardsList.size()-1);
             send(clientSocket, boardsList.c_str(), boardsList.size(),0);
             m_mutex.unlock();
         } else if (command == "SWITCH") {
             //Switch to new board
             //retreive prior messages on board
+            
             m_mutex.lock();
-            m_boardMembers[currentBoard].erase(std::remove(m_boardMembers[currentBoard].begin(), m_boardMembers[currentBoard].end(), clientSocket), m_boardMembers[currentBoard].end());
-            currentBoard = content;
-            m_boardMembers[currentBoard].push_back(clientSocket);
-            m_mutex.unlock();
+            if (m_boardMembers.find(content) != m_boardMembers.end() && std::find(m_boardMembers[content].begin(), m_boardMembers[content].end(), clientSocket) != m_boardMembers[content].end()) {
+                m_activeMembers[currentBoard].erase(std::remove(m_activeMembers[currentBoard].begin(), m_activeMembers[currentBoard].end(), clientSocket), m_activeMembers[currentBoard].end());
+                currentBoard = content;
+                m_activeMembers[currentBoard].push_back(clientSocket);
+            
 
-            m_mutex.lock();
-            std::string boardMessages = "Messages from " + currentBoard + ": ";
-            for (const auto& msg : m_boards[currentBoard]) {
-                boardMessages += "\nMessage ID: " + std::to_string(msg.id) + ", Sender: " + msg.sender + ", Post Date: " + std::to_string(msg.postDate) + ", Subject: " + msg.subject + ", Message content: " + msg.content;
+            
+                std::string boardMessages = "Messages from " + currentBoard + ": ";
+                for (const auto& msg : m_boards[currentBoard]) {
+                    boardMessages += "\n\nMessage ID: " + std::to_string(msg.id) + "\n Sender: " + msg.sender + "\n Post Date: " + std::to_string(msg.postDate) + "\n Subject: " + msg.subject + "\n Message content: " + msg.content;
+                }
+                send(clientSocket, boardMessages.c_str(), boardMessages.size(), 0);
+            }else if (m_groupMembers.find(content) != m_groupMembers.end() && std::find(m_groupMembers[content].begin(), m_groupMembers[content].end(), clientSocket) != m_groupMembers[content].end()) {
+                m_activeMembers[currentBoard].erase(std::remove(m_activeMembers[currentBoard].begin(), m_activeMembers[currentBoard].end(), clientSocket), m_activeMembers[currentBoard].end());
+                currentBoard = content;
+                m_activeMembers[currentBoard].push_back(clientSocket);
+
+                std::string boardMessages = "Messages from " + currentBoard + ": ";
+                for (const auto& msg : m_groups[currentBoard]) {
+                    boardMessages += "\n\nMessage ID: " + std::to_string(msg.id) + "\n Sender: " + msg.sender + "\n Post Date: " + std::to_string(msg.postDate) + "\n Subject: " + msg.subject + "\n Message content: " + msg.content;
+                }
+                send(clientSocket, boardMessages.c_str(), boardMessages.size(), 0);
+
             }
-            send(clientSocket, boardMessages.c_str(), boardMessages.size(), 0);
+             else {
+                std::string not_allowed = "You are not a member of the Requested Board Group.";
+                send(clientSocket, not_allowed.c_str(), not_allowed.size(),0);
+            }
             m_mutex.unlock();
         } else if (command == "DISC") {
             //Disconnect from server
@@ -136,29 +169,47 @@ void ChatServer::handleClient(int clientSocket) {
             std::string type = content.substr(0, content.find(" "));
             std::string name = content.substr(content.find(" ") + 1);
 
-            if (type == "BOARD") {
-                // Add a new board for all clients
-                m_mutex.lock();
-                m_boards[name];
-                for (const auto& client: m_clients) {
-                    m_boardMembers[name].push_back(client.first);
-                }
-                m_mutex.unlock();
-            } else if (type == "GROUP") {
-                // Add a group with only the client
-                m_mutex.lock();
-                m_boardMembers[name].push_back(clientSocket);
-                m_mutex.unlock();
-            } else if (type == "USER") {
-                m_mutex.lock();
-                for (const auto& client: m_clients) {
-                    if (client.second == name) {
-                        m_boardMembers[currentBoard].push_back(client.first);
-                        break;
+
+            m_mutex.lock();
+            if (m_boards.find(name) != m_boards.end()) {
+                // The board or group already exists
+                std::string error = "A board or group with this name already exists.";
+                send(clientSocket, error.c_str(), error.size(), 0);
+            } else if (m_groups.find(name) != m_groups.end()){
+                std::string error = "A board or group with this name already exists.";
+                send(clientSocket, error.c_str(), error.size(), 0);
+            } else{
+
+            
+                if (type == "BOARD") {
+                    // Add a new board for all clients
+                    
+                    m_boards[name];
+                    for (const auto& client: m_clients) {
+                        m_boardMembers[name].push_back(client.first);
                     }
+                    
+                } else if (type == "GROUP") {
+                    // Add a group with only the client
+                    
+                    m_groups[name];
+                    m_groupMembers[name].push_back(clientSocket);
+                    
+                } else if (type == "USER") {
+                    
+                    
+                    for (const auto& client: m_clients) {
+                        if (client.second == name) {
+                            m_groupMembers[currentBoard].push_back(client.first);
+                            break;
+                        }
+                    }
+                    
+                    
+                    
                 }
-                m_mutex.unlock();
             }
+            m_mutex.unlock();
 
         }
 
@@ -189,6 +240,6 @@ void ChatServer::run() {
         std::thread clientThread(&ChatServer::handleClient, this, clientSocket);
         clientThread.detach(); //Detatch thread
         
-        std::cout << "[CONNECTION] Client connected. Socket: " + clientSocket << std::endl;
+        std::cout << "[CONNECTION] Client connected. Socket: " << clientSocket << std::endl;
     }
 }
