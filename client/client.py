@@ -7,6 +7,8 @@ from colorama import Fore, Style
 
 colorama.init()
 
+import client_class
+
 def receive_handler(client_socket):
     while True:
         msg = client_socket.recv(1024).decode()
@@ -87,4 +89,12 @@ if __name__ == '__main__':
     parser.add_argument('--port',type=int,default=8080, help="The port to connect to")
     args = parser.parse_args()
     
-    client_program(args)
+    #client_program(args)
+    client_handler = client_class.Client()
+
+    if client_handler.setup(host=args.host, port=args.port):
+
+        if client_handler.login():
+            client_handler.make_recv()
+            client_handler.runtime()
+            client_handler.close_connection()
