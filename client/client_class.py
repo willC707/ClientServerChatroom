@@ -52,8 +52,8 @@ class Client:
 
     def runtime(self):
         cont = True
-        print(f'Welcom to the Server!\n You are logged in as {self.username}\n'+ \
-                  "Commands Availiable are: Help, Message, Add, Users, Boards, Switch, Bye")
+        print(f'Welcome to the Server!\n You are logged in as {self.username}\n'+ \
+                  "Commands Availiable are: Help, post, ret, Users, Boards, join, disc")
         while cont:
             
             
@@ -62,26 +62,27 @@ class Client:
 
             message = message.lower().strip()
 
-            if message == 'message':
+            if message == 'post':
                 sub = input("Subject:: ")
                 con = input("Message:: ")
-                msg_string = f'MSG {sub}:{con}'
+                msg_string = f'POST {sub}:{con}'
             elif message == 'users':
                 msg_string = f'USERS '
             elif message == 'boards':
                 msg_string = f'BOARD '
-            elif message == 'switch':
+            elif message == 'join':
                 bor = input("Board Name::")
                 self.board = bor
-                msg_string = f'SWITCH {bor}'
-            elif message == 'add':
-                print("Types:: BOARD/GROUP/USER")
-                typ = input("Type:: ")
-                name = input("New Name:: ")
-                msg_string = f'ADD {typ} {name}'
-            elif message == 'bye':
+                msg_string = f'JOIN {bor}'
+            elif message == 'ret':
+                mid = input("Message Id:: ")
+                msg_string = f'RET {mid}'
+            elif message == 'disc':
                 msg_string = f'DISC '
                 cont=False
+            elif message == 'group':
+                bor = input("Board Group::")
+                msg_string = f'GJOIN {bor}'
             else:
                 print("Not a Valid Command")
 

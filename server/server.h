@@ -25,13 +25,8 @@ class ChatServer {
         std::mutex m_mutex;
         std::map<int, std::string>m_clients;
         std::map<std::string, std::vector<Message>> m_boards;
-        std::map<std::string, std::vector<int>> m_boardMembers;
-        std::map<std::string, std::vector<int>> m_activeMembers;
-
-        std::map<std::string, std::vector<Message>> m_groups;
-        std::map<std::string, std::vector<int>> m_groupMembers;
-        //std::vector<Message> m_messages;
-        //std::vector<std::string> m_boards;
+        std::map<std::string, std::vector<std::pair<int, bool>>> m_boardMembers;
+        
         int message_id_counter;
 
         void handleClient(int clientSocket);
@@ -42,6 +37,7 @@ class ChatServer {
 
         void setup();
         void run();
+        void serverState();
 
 };
 
