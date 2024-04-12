@@ -160,27 +160,189 @@ public class ChatServer
         }
         else if (command == "RET")
         {
+            it messageID = int.Parse(content);
+            bool msgFound = false;
+            
+            m_mutex.WaitOne();
+            foreach (Message msg in m_boards[currentBoard])
+            {
+                if (msg.Id == messageID)
+                {
+                    string messageString = "\n\nMessage ID: " + msg.Id + 
+                        "\nSender: " + msg.Sender + "\nPost Date: " + msg.PostDate + 
+                        "\nSubject: " + msg.Subject + "\nContent: " + msg.Content;
 
+                    messageBytes = Encoding.ASCII.GetBytes(messageString);
+                    clientSocket.send(messageBytes);
+
+                    msgFound = true;
+                }
+            }
+
+            if (!msgFound)
+            {
+                messageBytes = Encoding.ASCII.GetBytes("ERROR: Message not found");
+                clientSocket.send(messageBytes);
+            }
+
+            m_mutex.ReleaseMutex();
         }
         else if (command == "USERS")
         {
+            m_mutex.WaitOne();
+
+            string userList = "Users: "
+
+            foreach ( Tuple user in m_boardMembers[currentBoard])
+            {
+                userList += user.Item1 + "\n"
+            }
+            messageBytes = Encoding.ASCII.GetBytes(userList);
+            clientSocket.send(messageBytes);
+
+            m_mutex.ReleaseMutex();
+
 
         }
         else if (command == "BOARD")
         {
+            m_mutex.WaitOne();
+            string boardList = "All Boards: "
+            for (string boardName in m_boards.Keys)
+            {
+                boardList += boardList + "\n";
+            }
+
+            messageBytes = Encodeing.ASCII.GetBytes(boardList);
+            clientSocket.send(messageBytes);
+
+            m_mutex.ReleaseMutex();
 
         }
         else if (command == "JOIN")
         {
+            string boardName = content;
 
+            m_mutex.WaitOne();
+
+            if ( m_boards.ContainsKey(boardName))
+            {
+                bool partOfGroup = false;
+                foreach (Tuple user in m_boardMembers[boardName])
+                {
+                    if(user.Item1 == username)
+                    {   
+                        partOfGroup = true;
+                        Tuple<string,bool> userTuple = new Tuple<string, bool>(username, false);
+                        int index = m_boardMembers[boardName].FindIndex(this => t.Equals(userTuple));
+
+                        if (index != -1)
+                        {
+                            userTuple = new Tuple<string, bool>(username, true);
+                            m_boardMembers[boardName][index] = userTuple;
+
+                            currentBoard = boardName;
+
+                            messageBytes = Encoding.ASCII.GetBytes("[SERVER] You are now logged into: " + boardName);
+                            clientSocket.send(messageBytes);
+
+                            foreach (Tuple boardUser in m_boardMembers[boardName])
+                            {
+                                messageBytes = Encoding.ASCII.GetBytes("[SERVER] User " + username + " Joined board " + boardName);
+
+                                if (boardUser.Item1 != username && boardUser.Item2)
+                                {
+                                    m_clients[boardUser.Item1].send(messageBytes);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            messageBytes = Encoding.ASCII.GetBytes("ERROR: You are already on this board");
+                            clientSocket.send(messageBytes);
+                        }
+                    }
+                    
+                }
+
+                if (!partOfGroup)
+                {
+                    messageBytes = Encoding.ASCII.GetBytes("ERROR: You are not a part of the user group");
+                    clientSocket.send(messageBytes);
+                }
+            }
+            else
+            {
+                messageBytes = Encoding.ASCII.GetBytes("ERROR: Board does not Exist");
+                clientSocket.send(messageBytes);
+            }
+            m_mutex.ReleaseMutex();
         }
         else if (command == "GJOIN")
         {
+            string groupName = content;
+
+            m_mutex.WaitOne();
+            if (m_boardMembers.ContainsKey(groupName))
+            {
+                if (m_boardMembers[groupName].ContainsKey(new Tuple<string, bool>(username, false) || m_boardMembers[groupName].ContainsKey(new Tuple<string, bool>(username, true)))
+                {
+                    messageBytes = Encoding.ASCII.GetBytes("ERROR: Already a part of the group");
+                    clientSocket.send(messageBytes);
+                }
+                else
+                {
+                    m_boardMembers[groupName].Add(new Tuple<string, bool>(username, false));
+                    messageBytes = Encoding.ASCII.GetBytes("[SERVER] You joinded Board group: " + groupName);
+                    clientSocket.send(messageBytes);
+                }
+            }
+            else
+            {
+                messageBytes = Encoding.ASCII.GetBytes("ERROR: Board Group Does not EXIST");
+                clientSocket.send(messageBytes);
+            }
+
+            m_mutex.ReleaseMutex();
+
 
         }
         else if (command == "DISC")
         {
+            m_mutex.WaitOne();
 
+            foreach (board in m_boardMembers.Keys)
+            {
+                if( m_boardMembers[board].Contains(new Tuple<string, bool>(username, false)) || m_boardMembers[m_boardMembers].Contains(new Tuple<string, bool>(username, true)))
+                {
+                    int index = m_boardMembers[board].FindIndex(t => t.Equals(new Tuple<string, bool>(username,false) || new Tuple<string, bool>(username, true)));
+                    if (index != -1)
+                    {
+                        m_boardMembers[board].RemoveAt(index)
+                    }
+                }
+            }
+
+            if (m_clients.ContainsKey(username))
+            {
+                m_clients.Remove(username);
+            }
+
+            messageBytes = Encoding.ASCII.GetBytes("[SERVER] User " + username + "Disconnected.")
+        
+            foreach ( string user in m_clients.Keys)
+            {
+                m_clients[user].send(messageBytes);      
+            }
+
+            m_mutex.ReleaseMutex();
+
+            messageBytes = Encoding.ASCII.GetBytes("[SERVER] You have disconnected from server.");
+            clientSocket.send(messageBytes);
+
+            clientSocket.Shutdown(SocketShutown.Both);
+            clientSocket.Close();
+            break;
         }
         else
         {
@@ -243,5 +405,5 @@ public class ChatServer
 
     public void ServerState()
     {
-
+        Console.WriteLine("Server State Not Set Up Yet");
     }
