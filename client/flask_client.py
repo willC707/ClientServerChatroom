@@ -44,30 +44,30 @@ def get_username():
 
     msgString = f'LOGIN {username}'
     
-    #client_socket.send(msgString.encode())
-    send(client_socket, msgString)
+    client_socket.send(msgString.encode())
+    #send(client_socket, msgString)
 
-    #response = client_socket.recv(1024).decode()
-    response = receive(client_socket)
+    response = client_socket.recv(1024).decode()
+    #response = receive(client_socket)
     print(f'GOT RESPONSE FOR LOGIN')
     
     threading.Thread(target=receive_message).start()
     msgString = f'JOIN Public:'
-    #client_socket.send(msgString.encode())
-    send(client_socket, msgString)
-    time.sleep(1)
+    client_socket.send(msgString.encode())
+    #send(client_socket, msgString)
+    time.sleep(3)
 
     msgString = f'USERS '
     
-    #client_socket.send(msgString.encode())
-    send(client_socket, msgString)
-    time.sleep(1)
+    client_socket.send(msgString.encode())
+    #send(client_socket, msgString)
+    time.sleep(3)
 
     msgString = f'BOARD '
     
-    #client_socket.send(msgString.encode())
-    send(client_socket, msgString)
-    time.sleep(1)
+    client_socket.send(msgString.encode())
+    #send(client_socket, msgString)
+    time.sleep(3)
     
 
     if response != "SUCCESFULL":
@@ -88,8 +88,8 @@ def send_message():
 
     messageString = f'POST {subject}:{message}'
     
-    #client_socket.send(messageString.encode())
-    send(client_socket, messageString)
+    client_socket.send(messageString.encode())
+    #send(client_socket, messageString)
     
     # Handle message construction and send to server here
 
@@ -124,8 +124,8 @@ def receive_message():
     #print('STARTING TO LISTEN FOR MESSAGES')
     while True:
         
-        #message = client_socket.recv(1024).decode()
-        message = receive(client_socket)
+        message = client_socket.recv(1024).decode()
+        #message = receive(client_socket)
     
         #client_socket.send("OK".encode())
         
