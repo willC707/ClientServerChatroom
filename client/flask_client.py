@@ -9,6 +9,8 @@ import os
 
 import sys
 
+import time
+
 
 
 
@@ -53,16 +55,19 @@ def get_username():
     msgString = f'JOIN Public:'
     #client_socket.send(msgString.encode())
     send(client_socket, msgString)
+    time.sleep(1)
 
     msgString = f'USERS '
     
     #client_socket.send(msgString.encode())
     send(client_socket, msgString)
+    time.sleep(1)
 
     msgString = f'BOARD '
     
     #client_socket.send(msgString.encode())
     send(client_socket, msgString)
+    time.sleep(1)
     
 
     if response != "SUCCESFULL":
