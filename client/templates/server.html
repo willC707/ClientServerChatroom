@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>Bulletin Board</title>
+      <link rel="stylesheet" href="static/style.css">
+   </head>
+   <body>
+      <header>
+         <h1>Bulletin Board - Project 2</h1>
+      </header>
+      <main>
+         <!-- List of Boards. Should be clickable to move to a new board-->
+         <div class="boards-list">
+            <h2>Availiable Boards</h2>
+            <ul id="boards">
+               <!-- List items added using java script-->
+            </ul>
+         </div>
+
+
+         <button class="rButton" type="button" onclick="receiveMsg()">Get Messaged</button>
+         <div class="chat-box">
+            <ul class="messageList" style="list-style-type: none;" id="message"></ul>
+            <div class="message-box">
+               <div class="msg-box-stuff">
+               
+                  <img onclick="SendMsg()" src="static/images/send-arrow.png" width="25px">
+                  <div class="msg-box-inputs">
+                     <input id="subject" type="text" placeholder="Enter a subject..."/>
+                     <input id="text" type="text" placeholder="Enter a message..." onkeydown="SendMsg(this)">
+                  </div>
+                  
+               </div>
+            </div>
+         </div>
+      </main>
+   </body>
+   <script src="static/myscripts.js"></script>
+</html>
