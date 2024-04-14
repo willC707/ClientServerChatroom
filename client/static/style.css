@@ -15,6 +15,19 @@ header {
    border-bottom: white solid 2px;
 }
 
+header button{ 
+   position: absolute;
+   top: 10px;
+   left: 10px;
+
+   border-radius: 12px;
+   border: white solid 2px;
+   background-color: rgb(10, 10, 86) ;
+   color: white;
+
+   box-shadow: 0 2px 5px black;
+}
+
 main {
    position: absolute;
    left: 0;
@@ -48,6 +61,17 @@ main {
    border-radius: 10px;
    margin: 10px;
 }
+
+.boards-list button{ 
+   margin: 2px;
+   border-radius: 12px;
+   border: white solid 2px;
+   background-color: rgb(10, 10, 86) ;
+   color: white;
+
+   box-shadow: 0 2px 5px black;
+}
+
 
 .notification {
    position: absolute;
@@ -256,6 +280,26 @@ input:focus {
    
 }
 
+.connected-users button{ 
+   margin: 2px;
+   border-radius: 12px;
+   border: white solid 2px;
+   background-color: rgb(10, 10, 86) ;
+   color: white;
+
+   box-shadow: 0 2px 5px black;
+}
+
+.board-users button{ 
+   margin: 2px;
+   border-radius: 12px;
+   border: white solid 2px;
+   background-color: rgb(10, 10, 86) ;
+   color: white;
+
+   box-shadow: 0 2px 5px black;
+}
+
 .user-header {
    background-color: rgb(2, 2, 41);
    border-bottom: white solid 2px;
@@ -278,12 +322,22 @@ input:focus {
    flex-direction: column;
    justify-content: space-between;
    align-items: center;
+}
 
+.get-message input {
+   color: black;
 }
 
 .rButton{
    margin: 10px;
+   border-radius: 12px;
+   border: white solid 2px;
+   background-color: rgb(10, 10, 86) ;
+   color: white;
+
+   box-shadow: 0 2px 5px black;
 }
+
 
 .r-inputField {
    font-size: 200%;
