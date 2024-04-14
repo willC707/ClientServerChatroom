@@ -82,21 +82,21 @@ public class ChatServer
     private void HandleClient(Socket clientSocket)
     {
         // Construct a Connection message and send to the Client
-        //byte[] messageBytes = Encoding.ASCII.GetBytes("CONNECTED");
-        //clientSocket.Send(messageBytes);
-        Send(clientSocket, "CONNECTED");
+        byte[] messageBytes = Encoding.ASCII.GetBytes("CONNECTED");
+        clientSocket.Send(messageBytes);
+        //Send(clientSocket, "CONNECTED");
 
         //Set up a buffer lenght and client variables
-        //byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[1024];
         string username = "None";
         string currentBoard = "None";
 
         while (true)
         {
             //Read incoming message from client and convert to string
-            //int received = clientSocket.Receive(buffer);
-            //string message = Encoding.UTF8.GetString(buffer, 0, received);
-            string message = Receive(clientSocket);
+            int received = clientSocket.Receive(buffer);
+            string message = Encoding.UTF8.GetString(buffer, 0, received);
+            //string message = Receive(clientSocket);
             Console.WriteLine(message);
 
             //Split the command from the content
@@ -115,9 +115,9 @@ public class ChatServer
 
                 if (m_clients.ContainsKey(username))
                 {
-                    //messageBytes = Encoding.ASCII.GetBytes("ERROR: Username already exists");
-                    //clientSocket.Send(messageBytes);
-                    Send(clientSocket, "ERROR");
+                    messageBytes = Encoding.ASCII.GetBytes("ERROR:Username already exists");
+                    clientSocket.Send(messageBytes);
+                    //Send(clientSocket, "ERROR");
                 }
                 else
                 {
@@ -129,18 +129,18 @@ public class ChatServer
 
                     Console.WriteLine("[CLIENT] Loggen in as : " + username);
 
-                    //messageBytes = Encoding.ASCII.GetBytes("SUCCESFULL");
-                    //clientSocket.Send(messageBytes);
-                    Send(clientSocket, "SUCCESFULL");
+                    messageBytes = Encoding.ASCII.GetBytes("SUCCESFULL");
+                    clientSocket.Send(messageBytes);
+                    //Send(clientSocket, "SUCCESFULL");
 
-                    //messageBytes = Encoding.ASCII.GetBytes("[SERVER]*New User Joined: " + username);
+                    messageBytes = Encoding.ASCII.GetBytes("[SERVER]*New User Joined: " + username);
 
                     foreach (string user in m_clients.Keys)
                     {
                         if (user != username)
                         {
-                            //m_clients[user].Send(messageBytes);
-                            Send(m_clients[user], "[SERVER]*New User Joined: " + username);
+                            m_clients[user].Send(messageBytes);
+                            //Send(m_clients[user], "[SERVER]*New User Joined: " + username);
                             
                         }
                     }
@@ -167,27 +167,27 @@ public class ChatServer
 
                 if (currentBoard != "None")
                 {
-                    string messageString = msg.Id + 
+                    string messageString = "MSG*"+ msg.Id + 
                     "*" + msg.Sender + "*" + msg.PostDate + 
                     "*" + msg.Subject + "*" + msg.Content;
 
-                    //messageBytes = Encoding.ASCII.GetBytes(messageString);
+                    messageBytes = Encoding.ASCII.GetBytes(messageString);
 
                     foreach (Tuple<string,bool> user in m_boardMembers[currentBoard])
                     {
                         if (user.Item1 != username && user.Item2)
                         {
-                            //m_clients[user.Item1].Send(messageBytes);
-                            Send(m_clients[user.Item1], messageString);
+                            m_clients[user.Item1].Send(messageBytes);
+                            //Send(m_clients[user.Item1], messageString);
                         }
                     }
                     m_boards[currentBoard].Add(msg);
                 }
                 else
                 {
-                    //messageBytes = Encoding.ASCII.GetBytes("ERROR: You are not on a board.");
-                    //clientSocket.Send(messageBytes);
-                    Send(clientSocket, "ERROR");
+                    messageBytes = Encoding.ASCII.GetBytes("ERROR: You are not on a board.");
+                    clientSocket.Send(messageBytes);
+                    //Send(clientSocket, "ERROR");
                 }
                 m_mutex.ReleaseMutex();
 
@@ -202,13 +202,13 @@ public class ChatServer
                 {
                     if (msg.Id == messageID)
                     {
-                        string messageString = "*" + msg.Id + 
+                        string messageString = "MSG*"+ msg.Id + 
                             "*" + msg.Sender + "*" + msg.PostDate + 
                             "*" + msg.Subject + "*" + msg.Content;
 
-                        //messageBytes = Encoding.ASCII.GetBytes(messageString);
-                        //clientSocket.Send(messageBytes);
-                        Send(clientSocket, messageString);
+                        messageBytes = Encoding.ASCII.GetBytes(messageString);
+                        clientSocket.Send(messageBytes);
+                        //Send(clientSocket, messageString);
 
                         msgFound = true;
                     }
@@ -216,9 +216,9 @@ public class ChatServer
 
                 if (!msgFound)
                 {
-                    //messageBytes = Encoding.ASCII.GetBytes("ERROR: Message not found");
-                    //clientSocket.Send(messageBytes);
-                    Send(clientSocket, "ERROR");
+                    messageBytes = Encoding.ASCII.GetBytes("ERROR: Message not found");
+                    clientSocket.Send(messageBytes);
+                    //Send(clientSocket, "ERROR");
                 }
 
                 m_mutex.ReleaseMutex();
@@ -231,24 +231,24 @@ public class ChatServer
 
                 foreach ( string user in m_clients.Keys)
                 {
-                    userList += user + "-";
+                    userList += user + "*";
                 }
                 userList = userList.Remove(userList.Length -1);
-                //messageBytes = Encoding.ASCII.GetBytes(userList);
-                //clientSocket.Send(messageBytes);
-                Send(clientSocket, userList);
+                messageBytes = Encoding.ASCII.GetBytes(userList);
+                clientSocket.Send(messageBytes);
+                //Send(clientSocket, userList);
 
                 if (m_boardMembers.ContainsKey(currentBoard))
                 {
                     userList = currentBoard + "MEMBERS*";
                     foreach ( Tuple<string, bool> user in m_boardMembers[currentBoard])
                     {
-                        userList += user.Item1 + "-";
+                        userList += user.Item1 + "*";
                     }
                     userList = userList.Remove(userList.Length -1);
-                    //messageBytes = Encoding.ASCII.GetBytes(userList);
-                    //clientSocket.Send(messageBytes);
-                    Send(clientSocket, userList);
+                    messageBytes = Encoding.ASCII.GetBytes(userList);
+                    clientSocket.Send(messageBytes);
+                    //Send(clientSocket, userList);
 
                     
                 }
@@ -262,13 +262,13 @@ public class ChatServer
                 string boardList = "BOARDS*";
                 foreach (string boardName in m_boards.Keys)
                 {
-                    boardList += boardName + "-";
+                    boardList += boardName + "*";
                     
                 }
                 boardList = boardList.Remove(boardList.Length -1);
-                //messageBytes = Encoding.ASCII.GetBytes(boardList);
-                //clientSocket.Send(messageBytes);
-                Send(clientSocket, boardList);
+                messageBytes = Encoding.ASCII.GetBytes(boardList);
+                clientSocket.Send(messageBytes);
+                //Send(clientSocket, boardList);
 
                 m_mutex.ReleaseMutex();
 
@@ -314,18 +314,18 @@ public class ChatServer
 
                             currentBoard = boardName;
 
-                            //messageBytes = Encoding.ASCII.GetBytes("[SERVER]*You are now logged into: " + boardName);
-                            //clientSocket.Send(messageBytes);
-                            Send(clientSocket, "[SERVER]*You are now logged into: " + boardName);
+                            messageBytes = Encoding.ASCII.GetBytes("[SERVER]*You are now logged into: " + boardName);
+                            clientSocket.Send(messageBytes);
+                            //Send(clientSocket, "[SERVER]*You are now logged into: " + boardName);
 
                             foreach (Tuple<string, bool> boardUser in m_boardMembers[boardName])
                             {
-                                //messageBytes = Encoding.ASCII.GetBytes("[SERVER]*User " + username + " Joined board " + boardName);
+                                messageBytes = Encoding.ASCII.GetBytes("[SERVER]*User " + username + " Joined board " + boardName);
 
                                 if (boardUser.Item1 != username && boardUser.Item2)
                                 {
-                                    //m_clients[boardUser.Item1].Send(messageBytes);
-                                    Send(m_clients[boardUser.Item1], "[SERVER]*User " + username + " Joined board " + boardName);
+                                    m_clients[boardUser.Item1].Send(messageBytes);
+                                    //Send(m_clients[boardUser.Item1], "[SERVER]*User " + username + " Joined board " + boardName);
                                 }
                             }
 
@@ -334,58 +334,58 @@ public class ChatServer
                                 Message msg1 = m_boards[currentBoard][m_boards[currentBoard].Count - 2];
                                 Message msg2 = m_boards[currentBoard][m_boards[currentBoard].Count - 1];
 
-                                string messageString = "*" + msg1.Id + 
+                                string messageString = "MSG*"+ msg1.Id + 
                                     "*" + msg1.Sender + "*" + msg1.PostDate + 
                                     "*" + msg1.Subject + "*" + msg1.Content;
                                     
                                 
-                                //messageBytes = Encoding.ASCII.GetBytes(messageString);
-                                //clientSocket.Send(messageBytes);
-                                Send(clientSocket, messageString);
+                                messageBytes = Encoding.ASCII.GetBytes(messageString);
+                                clientSocket.Send(messageBytes);
+                                //Send(clientSocket, messageString);
 
-                                messageString = "*" + msg2.Id + 
+                                messageString = "MSG*"+ msg2.Id + 
                                     "*" + msg2.Sender + "*" + msg2.PostDate + 
                                     "*" + msg2.Subject + "*" + msg2.Content;
                                     
                                 
-                                //messageBytes = Encoding.ASCII.GetBytes(messageString);
-                                //clientSocket.Send(messageBytes);
-                                Send(clientSocket, messageString);
+                                messageBytes = Encoding.ASCII.GetBytes(messageString);
+                                clientSocket.Send(messageBytes);
+                                //Send(clientSocket, messageString);
                             }
                             else
                             {
                                 foreach (Message msgn in m_boards[currentBoard])
                                 {
-                                    string messageString = "*" + msgn.Id + 
+                                    string messageString = "MSG*"+ msgn.Id + 
                                         "*" + msgn.Sender + "*" + msgn.PostDate + 
                                         "*" + msgn.Subject + "*" + msgn.Content;
                                     
                                 
-                                    //messageBytes = Encoding.ASCII.GetBytes(messageString);
-                                    //clientSocket.Send(messageBytes);
-                                    Send(clientSocket, messageString);
+                                    messageBytes = Encoding.ASCII.GetBytes(messageString);
+                                    clientSocket.Send(messageBytes);
+                                    //Send(clientSocket, messageString);
                                 }
                             }
                         }
                         else
                         {
-                            //messageBytes = Encoding.ASCII.GetBytes("ERROR: You are already on this board");
-                            //clientSocket.Send(messageBytes);
-                            Send(clientSocket, "ERROR");
+                            messageBytes = Encoding.ASCII.GetBytes("ERROR: You are already on this board");
+                            clientSocket.Send(messageBytes);
+                            //Send(clientSocket, "ERROR");
                         }
                     }
                     else
                     {
-                        //messageBytes = Encoding.ASCII.GetBytes("ERROR: You are not a part of the user group");
-                        //clientSocket.Send(messageBytes);
-                        Send(clientSocket, "ERROR");
+                        messageBytes = Encoding.ASCII.GetBytes("ERROR: You are not a part of the user group");
+                        clientSocket.Send(messageBytes);
+                        //Send(clientSocket, "ERROR");
                     }
                 }
                 else
                 {
-                    //messageBytes = Encoding.ASCII.GetBytes("ERROR: Board does not Exist");
-                    //clientSocket.Send(messageBytes);
-                    Send(clientSocket, "ERROR");
+                    messageBytes = Encoding.ASCII.GetBytes("ERROR: Board does not Exist");
+                    clientSocket.Send(messageBytes);
+                    //Send(clientSocket, "ERROR");
                 }
                 m_mutex.ReleaseMutex();
             }
@@ -398,23 +398,23 @@ public class ChatServer
                 {
                     if (m_boardMembers[groupName].Contains(new Tuple<string, bool>(username, false)) || m_boardMembers[groupName].Contains(new Tuple<string, bool>(username, true)))
                     {
-                        //messageBytes = Encoding.ASCII.GetBytes("ERROR: Already a part of the group");
-                        //clientSocket.Send(messageBytes);
-                        Send(clientSocket, "ERROR");
+                        messageBytes = Encoding.ASCII.GetBytes("ERROR: Already a part of the group");
+                        clientSocket.Send(messageBytes);
+                        //Send(clientSocket, "ERROR");
                     }
                     else
                     {
                         m_boardMembers[groupName].Add(new Tuple<string, bool>(username, false));
-                        //messageBytes = Encoding.ASCII.GetBytes("[SERVER]*You joinded Board group: " + groupName);
-                        //clientSocket.Send(messageBytes);
-                        Send(clientSocket, "[SERVER]*You joinded Board group: " + groupName);
+                        messageBytes = Encoding.ASCII.GetBytes("[SERVER]*You joinded Board group: " + groupName);
+                        clientSocket.Send(messageBytes);
+                        //Send(clientSocket, "[SERVER]*You joinded Board group: " + groupName);
                     }
                 }
                 else
                 {
-                    //messageBytes = Encoding.ASCII.GetBytes("ERROR: Board Group Does not EXIST");
-                    //clientSocket.Send(messageBytes);
-                    Send(clientSocket, "ERROR");
+                    messageBytes = Encoding.ASCII.GetBytes("ERROR: Board Group Does not EXIST");
+                    clientSocket.Send(messageBytes);
+                    //Send(clientSocket, "ERROR");
                 }
 
                 m_mutex.ReleaseMutex();
@@ -442,19 +442,19 @@ public class ChatServer
                     m_clients.Remove(username);
                 }
 
-                //messageBytes = Encoding.ASCII.GetBytes("[SERVER]*User " + username + "Disconnected.");
+                messageBytes = Encoding.ASCII.GetBytes("[SERVER]*User " + username + "Disconnected.");
             
                 foreach ( string user in m_clients.Keys)
                 {
-                    //m_clients[user].Send(messageBytes);   
-                    Send(m_clients[user], "[SERVER]*User " + username + "Disconnected.");   
+                    m_clients[user].Send(messageBytes);   
+                    //Send(m_clients[user], "[SERVER]*User " + username + "Disconnected.");   
                 }
 
                 m_mutex.ReleaseMutex();
 
-                //messageBytes = Encoding.ASCII.GetBytes("[SERVER]*You have disconnected from server.");
-                //clientSocket.Send(messageBytes);
-                Send(clientSocket, "[SERVER]*You have disconnected from server.");
+                messageBytes = Encoding.ASCII.GetBytes("[SERVER]*You have disconnected from server.");
+                clientSocket.Send(messageBytes);
+                //Send(clientSocket, "[SERVER]*You have disconnected from server.");
 
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
@@ -481,9 +481,9 @@ public class ChatServer
             }
             else
             {
-                //messageBytes = Encoding.ASCII.GetBytes("ERROR: Command is wrong");
-                //clientSocket.Send(messageBytes);
-                Send(clientSocket, "ERROR");
+                messageBytes = Encoding.ASCII.GetBytes("ERROR: Command is wrong");
+                clientSocket.Send(messageBytes);
+                //Send(clientSocket, "ERROR");
             }
         
         }

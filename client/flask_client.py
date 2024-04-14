@@ -35,6 +35,7 @@ def home():
 def server():
     return render_template('server.html')
 
+
 @app.route('/get_username', methods=['POST'])
 def get_username():
     #print('IN GET USERNAME')
@@ -50,7 +51,19 @@ def get_username():
     response = client_socket.recv(1024).decode()
     #response = receive(client_socket)
     print(f'GOT RESPONSE FOR LOGIN')
+   
     
+
+    
+    
+
+    if response != "SUCCESFULL":
+        return jsonify({'status': 'error', 'message': response}), 200
+    else:
+        return jsonify({'status': 'success'}), 200
+    
+@app.route('/setup_user', methods=['POST'])
+def setup_user():
     threading.Thread(target=receive_message).start()
     msgString = f'JOIN Public:'
     client_socket.send(msgString.encode())
@@ -68,14 +81,8 @@ def get_username():
     client_socket.send(msgString.encode())
     #send(client_socket, msgString)
     time.sleep(3)
-    
 
-    if response != "SUCCESFULL":
-        return jsonify({'status': 'error', 'message': response}), 200
-    else:
-        return jsonify({'status': 'success'}), 200
-    
-    
+    return jsonify({'status': 'success'}), 200
 
 
 
