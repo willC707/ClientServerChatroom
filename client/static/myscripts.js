@@ -16,17 +16,48 @@ socket.on('server_response', function(msg) {
       newNotification.style.border = "2px solid white"; // Border color and width
       newNotification.style.borderRadius = "10px"; // Rounded corners
       newNotification.style.padding = "2px"; // Padding
+      newNotification.style.margin = "0px";
       newNotification.innerHTML = `
       <li id="notif" >
-         <p>${msg.data.msg}</p>
+         <p style="margin: 0;">${msg.data.msg}</p>
       </li>
       `
       notifications.append(newNotification);
       
    } else if (msg.data.type == 'user_list'){
       // Handle user list
+      for (let item of msg.data.users){
+         var newUser = document.createElement("li");
+         newUser.style.backgroundColor = "rgb(2, 2, 41)"; // Change to desired background color
+         newUser.style.color = "white"; // Text color
+         newUser.style.border = "2px solid white"; // Border color and width
+         newUser.style.borderRadius = "10px"; // Rounded corners
+         newUser.style.padding = "2px"; // Padding
+         newUser.style.margin = "0px";
+         newUser.innerHTML = `
+         <li id="usr" >
+            <p style="margin: 0;">${item}</p>
+         </li>
+         `
+         users.append(newUser);
+      }
    } else if (msg.data.type == 'group_list'){
       // Handle group list
+      for (let item of msg.data.groups){
+         var newGroup = document.createElement("li");
+         newGroup.style.backgroundColor = "rgb(2, 2, 41)"; // Change to desired background color
+         newGroup.style.color = "white"; // Text color
+         newGroup.style.border = "2px solid white"; // Border color and width
+         newGroup.style.borderRadius = "10px"; // Rounded corners
+         newGroup.style.padding = "2px"; // Padding
+         newGroup.style.margin = "0px";
+         newGroup.innerHTML = `
+         <li id="grp" >
+            <p style="margin: 0;">${item}</p>
+         </li>
+         `
+         groups.append(newGroup);
+      }
    } else if (msg.data.type == 'board_list'){
       // Handle board list
       for (let item of msg.data.boards){
@@ -36,9 +67,10 @@ socket.on('server_response', function(msg) {
          newBoard.style.border = "2px solid white"; // Border color and width
          newBoard.style.borderRadius = "10px"; // Rounded corners
          newBoard.style.padding = "2px"; // Padding
+         newBoard.style.margin = "0px";
          newBoard.innerHTML = `
          <li id="notif" >
-            <p>${item}</p>
+            <p style="margin: 0;">${item}</p>
          </li>
          `
          boards.append(newBoard);
@@ -133,6 +165,70 @@ function GetBoards() {
          'Content-Type': 'application/json'
       },
       body: JSON.stringify({'username':username})
+   })
+   .then(response=>response.json())
+   .then(data=>console.log(data));
+}
+
+function JoinGroup() {
+   const group_name = document.getElementById('joinGroup').value;
+   document.getElementById('joinGroup').value = '';
+   fetch('/join_group', {
+      method:'POST',
+      headers: {
+         'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'group_name': group_name })
+   })
+   .then(response=>response.json())
+   .then(data=>console.log(data));
+}
+
+function LeaveGroup() {
+   const group_name = document.getElementById('leaveGroup').value;
+   document.getElementById('leaveGroup').value = '';
+   fetch('/leave_group', {
+      method:'POST',
+      headers: {
+         'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'group_name':group_name})
+   })
+   .then(response=>response.json())
+   .then(data=>console.log(data));
+}
+
+function GetUsers() {
+   fetch('/get_users', {
+      method:'POST',
+      headers: {
+         'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'username':username})
+   })
+   .then(response=>response.json())
+   .then(data=>console.log(data));
+}
+
+function GetGroup() {
+   fetch('/get_group', {
+      method:'POST',
+      headers: {
+         'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'username':username})
+   })
+   .then(response=>response.json())
+   .then(data=>console.log(data));
+}
+
+function receiveMsg() {
+   fetch('/receive_msge', {
+      method:'POST',
+      headers: {
+         'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'msg_id': msg_id})
    })
    .then(response=>response.json())
    .then(data=>console.log(data));

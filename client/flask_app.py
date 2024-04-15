@@ -75,6 +75,42 @@ def get_boards():
 
     return jsonify({'message': msgString})
 
+@app.route('/join_group', methods=['POST'])
+def join_group():
+    data = request.get_json()
+    group = data['group_name']
+
+    msgString = f'GJOIN {group}'
+    clientSocket.send(msgString.encode('utf-8'))
+
+    return jsonify({'message': msgString})
+
+@app.route('/leave_group', methods=['POST'])
+def leave_group():
+    data = request.get_json()
+    group = data['group_name']
+
+    msgString = f'LEAVE {group}'
+    clientSocket.send(msgString.encode('utf-8'))
+
+    return jsonify({'message': msgString})
+
+@app.route('/get_users', methods=['POST'])
+def get_users():
+    data = request.get_json()
+
+    msgString = f'USERS '
+    clientSocket.send(msgString.encode('utf-8'))
+    return jsonify({'message': msgString})
+
+@app.route('/get_group', methods=['POST'])
+def get_group():
+    data = request.get_json()
+
+    msgString = f'GROUPS '
+    clientSocket.send(msgString.encode('utf-8'))
+    return jsonify({'message': msgString})
+
 def create_socket_connection():
     host = 'localhost'
     port = 8080

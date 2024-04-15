@@ -27,9 +27,19 @@
                      <h3>Boards</h3>
                   </div>
                   <button onclick="GetBoards()">Get Boards</button>
-                  <ul id="boards">
+                  <ul id="boards" style="list-style-type: none;">
                      <!-- List items added using java script-->
                   </ul>
+               </div>
+
+               <div class="get-message">
+                  <input type="text" id="joinGroup" placeholder="Join a Group...">
+                  <button class="rButton" type="button" onclick="JoinGroup()">Join</button>
+               </div>
+
+               <div class="get-message">
+                  <input type="text" id="leaveGroup" placeholder="Leave a Group...">
+                  <button class="rButton" type="button" onclick="LeaveGroup()">Join</button>
                </div>
 
                <div class="notification-list">
@@ -74,7 +84,11 @@
                   <div class="user-header">
                      <h3>Connected Users</h3>
                   </div>
+
                   <button onclick="GetUsers()">Get Users</button>
+
+                  <ul id="users" style="list-style-type: none;"></ul>
+                  
 
                </div>
 
@@ -82,7 +96,10 @@
                   <div class="user-header">
                      <h3>Board Users</h3>
                   </div>
+                  
                   <button onclick="GetGroup()">Get Users</button>
+
+                  <ul id="groups" style="list-style-type: none;"></ul>
                </div>
 
                <div class="get-message">

@@ -237,24 +237,27 @@ public class ChatServer
                 messageBytes = Encoding.ASCII.GetBytes(userList);
                 clientSocket.Send(messageBytes);
                 //Send(clientSocket, userList);
-
-                if (m_boardMembers.ContainsKey(currentBoard))
-                {
-                    userList = currentBoard + "MEMBERS*";
-                    foreach ( Tuple<string, bool> user in m_boardMembers[currentBoard])
-                    {
-                        userList += user.Item1 + "*";
-                    }
-                    userList = userList.Remove(userList.Length -1);
-                    messageBytes = Encoding.ASCII.GetBytes(userList);
-                    clientSocket.Send(messageBytes);
-                    //Send(clientSocket, userList);
-
-                    
-                }
                 m_mutex.ReleaseMutex();
 
 
+            }
+            else if (command == "GROUPS")
+            {
+                m_mutex.WaitOne();
+
+                string groupList = "MEMBERS*";
+
+                if (m_boardMembers.ContainsKey(currentBoard))
+                {
+                    foreach ( Tuple<string, bool> user in m_boardMembers[currentBoard])
+                    {
+                        groupList += user.Item1 + "*";
+                    }
+                    groupList = groupList.Remove(groupList.Length - 1);
+                    messageBytes = Encoding.ASCII.GetBytes(groupList);
+                    clientSocket.Send(messageBytes);
+                }
+                m_mutex.ReleaseMutex();
             }
             else if (command == "BOARD")
             {
