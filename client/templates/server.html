@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>Bulletin Board</title>
+      <link rel="stylesheet" href="static/style.css">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+
+      
+
+   </head>
+   <body>
+      <header>
+         <h1>Bulletin Board - Project 2</h1>
+         <button onclick="Disconnect()">Disconnect</button>
+      </header>
+      <main>
+
+         <div class="pContainer">
+
+            <div class="lContainer">
+
+               <div class="boards-list">
+                  <div class="user-header">
+                     <h3>Boards</h3>
+                  </div>
+                  <button onclick="GetBoards()">Get Boards</button>
+                  <ul id="boards" style="list-style-type: none;">
+                     <!-- List items added using java script-->
+                  </ul>
+               </div>
+
+               <div class="get-message">
+                  <input type="text" id="joinGroup" placeholder="Join a Group...">
+                  <button class="rButton" type="button" onclick="JoinGroup()">Join</button>
+               </div>
+
+               <div class="get-message">
+                  <input type="text" id="leaveGroup" placeholder="Leave a Group...">
+                  <button class="rButton" type="button" onclick="LeaveGroup()">Join</button>
+               </div>
+
+               <div class="notification-list">
+                  <div class="user-header">
+                     <h3>Notifications</h3>
+                  </div>
+                  <ul id="notifications" style="list-style-type: none;"></ul>
+               </div>
+            </div>
+            <!-- List of Boards. Should be clickable to move to a new board-->
+            
+
+
+            <!-- Chat Box entery field -->
+            <div class="mContainer">
+               <div class="chat-box">
+                  <ul class="messageList" style="list-style-type: none;" id="message"></ul>
+                  <div class="message-box">
+
+                     <div class="msg-box-stuff">
+
+                        <dim class="send-img">
+                           <img onclick="SendMsg()" src="static/images/send-arrow.png" width="25px">
+                        </dim>
+
+                        <div class="msg-box-inputs">
+                           <input id="subject" type="text" placeholder="Enter a subject..."/>
+                           <input id="text" type="text" placeholder="Enter a message..." onkeydown="SendMsg(this)">
+                        </div>
+                        
+                     </div>
+                  </div>
+               </div>
+            </div>
+            
+
+
+            <!-- Input Message ID for Retreiving button-->
+            <div class="rContainer">
+
+               <div class="connected-users">
+                  <div class="user-header">
+                     <h3>Connected Users</h3>
+                  </div>
+
+                  <button onclick="GetUsers()">Get Users</button>
+
+                  <ul id="users" style="list-style-type: none;"></ul>
+                  
+
+               </div>
+
+               <div class="board-users">
+                  <div class="user-header">
+                     <h3>Board Users</h3>
+                  </div>
+                  
+                  <button onclick="GetGroup()">Get Users</button>
+
+                  <ul id="groups" style="list-style-type: none;"></ul>
+               </div>
+
+               <div class="get-message">
+                  <input type="text" id="messageID" placeholder="Message ID...">
+                  <button class="rButton" type="button" onclick="receiveMsg()">Get Message</button>
+               </div>
+
+               <div class="get-message">
+                  <input type="text" id="boardName" placeholder="Join a Board...">
+                  <button class="rButton" type="button" onclick="JoinBoard()">Join</button>
+               </div>
+
+            </div>
+
+         </div>
+      </main>
+   </body>
+   <script src="static/myscripts.js"></script>
+   
+</html>

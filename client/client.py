@@ -5,6 +5,28 @@ import threading
 import colorama
 from colorama import Fore, Style
 
+import webbrowser
+import os
+
+def open_html():
+    filepath = "../webpage/index.html"
+    url = "file://" + os.path.realpath(filepath)
+
+    webbrowser.open_new(url)
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/get_username', methods=['POST'])
+def get_username():
+    data = request.get_json()
+    username = data['username']
+
+    return jsonify({'status': 'success'}), 200
+
+
+
 colorama.init()
 
 import client_class
@@ -90,6 +112,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     #client_program(args)
+    open_html()
     client_handler = client_class.Client()
 
     if client_handler.setup(host=args.host, port=args.port):
