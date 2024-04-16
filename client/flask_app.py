@@ -111,6 +111,14 @@ def get_group():
     clientSocket.send(msgString.encode('utf-8'))
     return jsonify({'message': msgString})
 
+@app.route('/receive_msg', methods=['POST'])
+def receive_msg():
+    data = request.get_json()
+
+    msgString = f'RET {data['msg_id']}'
+    clientSocket.send(msgString.encode('utf-8'))
+    return jsonify({'message': msgString})
+
 def create_socket_connection():
     host = 'localhost'
     port = 8080

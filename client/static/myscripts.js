@@ -80,13 +80,16 @@ socket.on('server_response', function(msg) {
       var newMessage = document.createElement("li");
       newMessage.innerHTML = `
       <li id="chatbox" style="margin-bottom:15px; font-size: 125%;" class="most-recent">
-         <div class="usernameAndMsg">
-            <p class="user">${msg.data.sender}</p>
-            <p class="subject">${msg.data.subject}</p>
-            <p id="most-recent-message">${msg.data.msg}</p>
-         </div>
-         <img class="sent" src="static/images/user-icon.png" width="40px">
-      </li>
+               <div class="usernameAndMsg">
+                  <p class="user">${msg.data.sender}</p>
+                  <p id="most-recent-message" style="font-size: 100%;">SUBJECT: ${msg.data.subject}</p>
+                  <p id="most-recent-message" style="font-size: 80%;">MESSAGE: ${msg.data.msg}</p>
+                  <p id="most-recent-message" style="font-size: 60%;"> ${msg.data.date}</p>
+                  <p id="most-recent-message" style="font-size: 60%;">ID: ${msg.data.id}</p>
+                  
+               </div>
+               <img class="sent" src="static/images/user-icon.png" width="40px">
+            </li>
       `
       message.append(newMessage);
    } else if(msg.data.type == 'error'){
@@ -117,8 +120,8 @@ function SendMsg() {
             <li id="chatbox" style="margin-bottom:15px; font-size: 125%;" class="most-recent">
                <div class="usernameAndMsg">
                   <p class="user">${username}</p>
-                  <p class="subject">${subject}</p>
-                  <p id="most-recent-message">${msg}</p>
+                  <p id="most-recent-message" style="font-size: 100%;">SUBJECT: ${subject}</p>
+                  <p id="most-recent-message" style="font-size: 80%;">MESSAGE: ${msg}</p>
                </div>
                <img class="sent" src="static/images/user-icon.png" width="40px">
             </li>
@@ -199,6 +202,8 @@ function LeaveGroup() {
 }
 
 function GetUsers() {
+   let listElement = document.getElementById('users');
+   listElement.innerHTML = '';
    fetch('/get_users', {
       method:'POST',
       headers: {
@@ -211,6 +216,8 @@ function GetUsers() {
 }
 
 function GetGroup() {
+   let listElement = document.getElementById('groups');
+   listElement.innerHTML = '';
    fetch('/get_group', {
       method:'POST',
       headers: {
@@ -223,7 +230,9 @@ function GetGroup() {
 }
 
 function receiveMsg() {
-   fetch('/receive_msge', {
+   const msg_id = document.getElementById('messageID').value;
+   document.getElementById('messageID').value = '';
+   fetch('/receive_msg', {
       method:'POST',
       headers: {
          'Content-Type': 'application/json'

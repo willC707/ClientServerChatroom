@@ -53,7 +53,7 @@ class Client:
     def runtime(self):
         cont = True
         print(f'Welcome to the Server!\n You are logged in as {self.username}\n'+ \
-                  "Commands Availiable are: Help, post, ret, Users, Boards, join, disc")
+                  "Commands Availiable are: help, post, ret, users, groups, boards, join, gjoin, leave,  disc")
         while cont:
             
             
@@ -68,6 +68,8 @@ class Client:
                 msg_string = f'POST {sub}:{con}'
             elif message == 'users':
                 msg_string = f'USERS '
+            elif message == 'groups':
+                msg_string = f'GROUPS '
             elif message == 'boards':
                 msg_string = f'BOARD '
             elif message == 'join':
@@ -80,9 +82,15 @@ class Client:
             elif message == 'disc':
                 msg_string = f'DISC '
                 cont=False
-            elif message == 'group':
+            elif message == 'gjoin':
                 bor = input("Board Group::")
                 msg_string = f'GJOIN {bor}'
+            elif message == 'leave':
+                bor = input("Board Group::")
+                msg_string = f'LEAVE {bor}'
+            elif message == "help":
+                print("Commands Availiable are: help, post, ret, users, groups, boards, join, gjoin, leave,  disc")
+                msg_string = None
             else:
                 print("Not a Valid Command")
 

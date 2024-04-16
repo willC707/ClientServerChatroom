@@ -180,6 +180,7 @@ main .notification h3 {
 
    display: flex;
    flex-direction: column;
+   max-height: 100%;
 }
 
 .chat-box h4 {
@@ -188,6 +189,7 @@ main .notification h3 {
    bottom: 10px;
 
    color: white;
+   max-height: 90%;
 }
 
 .most-recent {
@@ -251,6 +253,7 @@ input:focus {
    border: 2px solid white;
    border-radius: 5px;
    margin: 2px;
+   color: white;
 }
 
 .send-img {
@@ -353,13 +356,10 @@ input:focus {
    right: 30px;
    float: left;
 
-   height: 72px;
-
    color: white;
 
    display: grid;
-   grid-template-columns: 1fr 10fr;
-   column-gap: 10px;
+   grid-template-columns: 10fr 1fr;
 
    box-shadow: 0px 0px 10px 2px black;
 
@@ -387,18 +387,13 @@ input:focus {
    text-align: right;
 }
 
-.r-usernameAndMsg {
-   display: grid;
-   grid-template-rows: 15px 20px;
-   row-gap: 0px;
-}
 
 .user {
    font-size: 70%;
 }
 
 .messageList {
-   flex-grow: 1;
+   flex: 1;
 
    border-top-left-radius: 10px;
    border-top-right-radius: 10px;
@@ -406,4 +401,40 @@ input:focus {
    -ms-overflow-style: none; /* for Internet Explorer, Edge */
    scrollbar-width: none; /* for Firefox */
    overflow-y: auto;
+}
+
+.r-usernameAndMsg {
+   position: relative;
+   display: grid;
+   text-align:right;
+   grid-template-rows: 30px auto;
+   row-gap: 3px;
+
+   bottom: 10px;
+}
+
+.dataAndID {
+   position: absolute;
+   display: grid;
+   grid-template-rows: auto 10px;
+
+   bottom: 2px;
+   left: 2px;
+
+   row-gap: 0px;
+   text-align:left;
+   margin-right: 10px;
+
+}
+
+.date {
+   position: relative;
+   font-size: 10px;
+   background-color: red;
+}
+
+.id {
+   position: relative;
+
+   background-color: blue;
 }

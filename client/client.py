@@ -112,7 +112,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     #client_program(args)
-    open_html()
+   
     client_handler = client_class.Client()
 
     if client_handler.setup(host=args.host, port=args.port):

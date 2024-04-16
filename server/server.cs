@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Net;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class Message
 {
@@ -346,6 +347,8 @@ public class ChatServer
                                 clientSocket.Send(messageBytes);
                                 //Send(clientSocket, messageString);
 
+                                Thread.Sleep(1000);
+
                                 messageString = "MSG*"+ msg2.Id + 
                                     "*" + msg2.Sender + "*" + msg2.PostDate + 
                                     "*" + msg2.Subject + "*" + msg2.Content;
@@ -366,6 +369,7 @@ public class ChatServer
                                 
                                     messageBytes = Encoding.ASCII.GetBytes(messageString);
                                     clientSocket.Send(messageBytes);
+                                    Thread.Sleep(1000);
                                     //Send(clientSocket, messageString);
                                 }
                             }
